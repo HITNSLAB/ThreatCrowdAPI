@@ -37,7 +37,7 @@ services:
       MONGO_PASSWORD: "HITdbManager-rw!"
       TRANSFER_TIME: 200
     command: ["python","get_task.py"]
-  taskspider:
+  transfer:
     image:
       leeyanzhe/threatcrowdapi
     deploy:
