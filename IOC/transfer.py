@@ -1,12 +1,14 @@
 #!/usr/bin/python
 # coding:utf-8
 from __future__ import print_function, unicode_literals
-from urllib.parse import quote_plus
-import redis
+
 import time
-from config import *
 from urllib.parse import quote_plus
+
+import redis
 from pymongo import MongoClient
+
+from config import *
 from logger_router import LoggerRouter
 
 logger = LoggerRouter().getLogger(__name__)
@@ -16,12 +18,12 @@ def monitor():
     monitor_redis_client = redis.Redis(host=REDIS_RESULT_HOST)
 
     uris = [
-        "mongodb://%s:%s@%s" % (quote_plus(MONGO_USER), quote_plus(MONGO_PASSWORD), host)for host in MONGO_RESULT_HOST
-        ]
+        "mongodb://%s:%s@%s" % (quote_plus(MONGO_USER), quote_plus(MONGO_PASSWORD), host) for host in MONGO_RESULT_HOST
+    ]
 
     result_mongo_client = MongoClient(
         host=uris,
-        replicaset='nistrepl',
+        replicaset=MONGO_REPLICASET,
         readPreference='secondary',
     )
 
@@ -63,4 +65,3 @@ def monitor():
 
 if __name__ == '__main__':
     monitor()
-

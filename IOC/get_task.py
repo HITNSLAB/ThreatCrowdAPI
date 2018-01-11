@@ -25,8 +25,7 @@ def main():
             task_content = request_client.get(TASK_API).content
             logger.info(task_content)
         except Exception as e:
-            logger.info(e)
-            logger.info("任务队列服务器崩溃")
+            logger.error("任务队列服务器崩溃, exception: '%s'" % e)
             break
 
         info_dict = eval(str(task_content).split("y")[1].split("<")[0])

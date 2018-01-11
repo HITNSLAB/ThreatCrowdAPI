@@ -1,72 +1,74 @@
 #!/usr/bin/python
 # coding:utf-8
 from __future__ import unicode_literals
+import os
 
 # ================================================================================
 # get_task.py
 
 # 获取任务的API
-TASK_API = "http://172.26.253.78/ip_queue/ip_start.php?queue=find"
+TASK_API = os.getenv('TASK_API', "http://172.26.253.78/ip_queue/ip_start.php?queue=find")
 # 任务完成状态的API
-RESULT_API = "http://172.26.253.78/ip_queue/ip_finished.php?finished="
+RESULT_API = os.getenv('RESULT_API', "http://172.26.253.78/ip_queue/ip_finished.php?finished=")
 
 # ================================================================================
 # crawspider.py
 
 # 代理IP Redis数据库的主机地址
-REDIS_PROXY_HOST = "172.29.152.141"
+REDIS_PROXY_HOST = os.getenv('REDIS_PROXY_HOST', "172.29.152.141")
 # Redis中代理IP所在list的名称
-REDIS_PROXY_LISTNAME = "ip_list"
+REDIS_PROXY_LISTNAME = os.getenv('REDIS_PROXY_LISTNAME', "ip_list")
 # 目的API_1的前缀
-SPIDER_URL = "https://www.threatcrowd.org/searchApi/v2/ip/report/?ip="
+SPIDER_URL = os.getenv('SPIDER_URL', "https://www.threatcrowd.org/searchApi/v2/ip/report/?ip=")
 # 目的API_2的前缀
-MD5_URL = "https://www.threatcrowd.org/searchApi/v2/file/report/?resource="
+MD5_URL = os.getenv('MD5_URL', "https://www.threatcrowd.org/searchApi/v2/file/report/?resource=")
 # 一次性获取的IP代理的个数
-TEST_IP_LIST_COUNT = 1
+TEST_IP_LIST_COUNT = int(os.getenv('TEST_IP_LIST_COUNT', 1))
 # 爬取线程数
-THREAD_NUM = 4
+THREAD_NUM = int(os.getenv('THREAD_NUM', 4))
 # 检测代理IP是否可用的网址
-TEST_URL = "https://www.threatcrowd.org/searchApi/v2/ip/report/?ip=0.0.0.0"
+TEST_URL = os.getenv('TEST_URL', "https://www.threatcrowd.org/searchApi/v2/ip/report/?ip=0.0.0.0")
 # 失败重试次数
-RETRY_COUNT = 10
+RETRY_COUNT = int(os.getenv('RETRY_COUNT', 10))
 
 # ================================================================================
 # store.py
 
 # 存储结果/错误信息所在Redis数据库的主机地址（中转）
-REDIS_RESULT_HOST = "172.29.152.200"
+REDIS_RESULT_HOST = os.getenv('REDIS_RESULT_HOST', "172.29.152.200")
 # 存储错误信息所在Redis数据库的表名（中转）
-REDIS_ERROR_TABLE = "error"
+REDIS_ERROR_TABLE = os.getenv('REDIS_ERROR_TABLE', "error")
 # 存储结果所在Redis数据库的表名（中转）
-REDIS_RESULT_TABLE = "result"
+REDIS_RESULT_TABLE = os.getenv('REDIS_RESULT_TABLE', "result")
 # 存储缺少代理警告信息所在Redis数据库的表名（中转）
-REDIS_LACK_TABLE = "lack"
+REDIS_LACK_TABLE = os.getenv('REDIS_LACK_TABLE', "lack")
 
 # ================================================================================
 # transfer.py
 
 # 存储结果/错误信息所在Mongo数据库的主机地址（总）
 MONGO_RESULT_HOST = [
-            '172.29.152.200',
-            '172.29.152.141',
-            '172.29.152.142',
-            '172.29.152.143',
-            '172.29.152.144',
-            '172.29.152.145',
-            '172.29.152.146',
-            '172.26.253.147'
-        ]
-MONGO_RESULT_DB = "threatcrowd"
-MONGO_RESULT_CL = "result"
-MONGO_ERROR_CL = "error"
-MONGO_LACK_CL = "lack"
+    '172.29.152.200',
+    '172.29.152.141',
+    '172.29.152.142',
+    '172.29.152.143',
+    '172.29.152.144',
+    '172.29.152.145',
+    '172.29.152.146',
+    '172.26.253.147'
+]
+MONGO_REPLICASET = os.getenv('MONGO_REPLICASET', "nistrepl")
+MONGO_RESULT_DB = os.getenv('MONGO_RESULT_DB', "threatcrowd")
+MONGO_RESULT_CL = os.getenv('MONGO_RESULT_CL', "result")
+MONGO_ERROR_CL = os.getenv('MONGO_ERROR_CL', "error")
+MONGO_LACK_CL = os.getenv('MONGO_LACK_CL', "lack")
 
 # 用户
-MONGO_USER = "manager-rw"
-MONGO_PASSWORD = "HITdbManager-rw!"
+MONGO_USER = os.getenv('MONGO_USER', "manager-rw")
+MONGO_PASSWORD = os.getenv('MONGO_PASSWORD', "HITdbManager-rw!")
 
 # 转存间隔时间
-TRANSFER_TIME = 200
+TRANSFER_TIME = int(os.getenv('TRANSFER_TIME', 200))
 
 # ================================================================================
 

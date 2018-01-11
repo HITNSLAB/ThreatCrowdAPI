@@ -1,0 +1,77 @@
+version: '3.4'
+services:
+  taskspider:
+    image:
+      leeyanzhe/threatcrowdapi
+    deploy:
+      mode: replicated
+      replicas: 180
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 5
+        window: 60s
+      update_config:
+        parallelism: 20
+        failure_action: rollback
+        delay: 10s
+        order: stop-first
+    environment:
+      TASK_API: "http://172.26.253.78/ip_queue/ip_start.php?queue=find"
+      RESULT_API: "http://172.26.253.78/ip_queue/ip_finished.php?finished="
+      REDIS_PROXY_HOST: "172.29.152.141"
+      SPIDER_URL: "https://www.threatcrowd.org/searchApi/v2/ip/report/?ip="
+      MD5_URL: "https://www.threatcrowd.org/searchApi/v2/file/report/?resource="
+      THREAD_NUM: 16
+      RETRY_COUNT: 10
+      REDIS_RESULT_HOST: "172.29.152.200"
+      REDIS_ERROR_TABLE: "error"
+      REDIS_RESULT_TABLE: "result"
+      REDIS_LACK_TABLE: "lack"
+      MONGO_REPLICASET: "nistrepl"
+      MONGO_RESULT_DB: "threatcrowd"
+      MONGO_RESULT_CL: "result"
+      MONGO_ERROR_CL: "error"
+      MONGO_LACK_CL: "lack"
+      MONGO_USER: "manager-rw"
+      MONGO_PASSWORD: "HITdbManager-rw!"
+      TRANSFER_TIME: 200
+    command: ["python","get_task.py"]
+  taskspider:
+    image:
+      leeyanzhe/threatcrowdapi
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 5
+        window: 60s
+      update_config:
+        parallelism: 20
+        failure_action: rollback
+        delay: 10s
+        order: stop-first
+    environment:
+      TASK_API: "http://172.26.253.78/ip_queue/ip_start.php?queue=find"
+      RESULT_API: "http://172.26.253.78/ip_queue/ip_finished.php?finished="
+      REDIS_PROXY_HOST: "172.29.152.141"
+      SPIDER_URL: "https://www.threatcrowd.org/searchApi/v2/ip/report/?ip="
+      MD5_URL: "https://www.threatcrowd.org/searchApi/v2/file/report/?resource="
+      THREAD_NUM: 16
+      RETRY_COUNT: 10
+      REDIS_RESULT_HOST: "172.29.152.200"
+      REDIS_ERROR_TABLE: "error"
+      REDIS_RESULT_TABLE: "result"
+      REDIS_LACK_TABLE: "lack"
+      MONGO_REPLICASET: "nistrepl"
+      MONGO_RESULT_DB: "threatcrowd"
+      MONGO_RESULT_CL: "result"
+      MONGO_ERROR_CL: "error"
+      MONGO_LACK_CL: "lack"
+      MONGO_USER: "manager-rw"
+      MONGO_PASSWORD: "HITdbManager-rw!"
+      TRANSFER_TIME: 200
+    command: ["python","transfer.py"]
+
