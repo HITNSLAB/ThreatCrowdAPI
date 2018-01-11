@@ -1,6 +1,6 @@
+import sys
 from logging.handlers import *
 from queue import Queue
-import sys
 
 
 class Singleton(type):

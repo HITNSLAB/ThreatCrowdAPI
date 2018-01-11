@@ -1,16 +1,18 @@
 #!/usr/bin/python
 # coding:utf-8
 from __future__ import print_function, unicode_literals
-import requests
+
 import json
-import time
 import threading
 from queue import Queue
+
+import requests
 from bs4 import BeautifulSoup
-from store import Store, SendBackProxy
+
 from config import *
-from proxy import get_ip_from_redis
 from logger_router import LoggerRouter
+from proxy import get_ip_from_redis
+from store import Store, SendBackProxy
 
 logger = LoggerRouter().getLogger(__name__)
 
@@ -233,24 +235,23 @@ class Parser(object):
             try:
                 content = self.client.get(self.ip_href, timeout=5, proxies=self.proxies,
                                           headers=headers).content
-                logger.info("get %s ip successfully!" % self.ip_href)
+                logger.info("Got '%s' ip successfully!" % self.ip_href)
 
                 ip_dict = json.loads(content)
-                logger.info(ip_dict)
+                logger.info('Got ip_dict = %s' % ip_dict)
 
                 if ip_dict["response_code"] == "1":
-                    logger.info("%s's status is 1" % self.ip_href)
+                    logger.info("Status code of ip_href '%s' is 1 " % self.ip_href)
                     self.info_dict["ip"] = self.ip_href.split("=")[-1]
                     self.info_dict["md5"] = []
-                    logger.info("md5如下：%s" % ip_dict["hashes"])
+                    logger.info("MD5如下：%s" % ip_dict["hashes"])
                     if ip_dict["hashes"]:
 
                         self._md5_list = ip_dict["hashes"]
                         if self.detect_md5() == -2:
                             return -2
-
                     else:
-                        logger.info("未发现md5。。。")
+                        logger.warning("未发现md5。。。")
                         return -1
                 else:
                     return -1
@@ -259,8 +260,7 @@ class Parser(object):
                 return self.info_dict
 
             except Exception as e:
-                logger.info("代理出现错误，正在重试 %s" % self.ip_href)
-                logger.info(e)
+                logger.error("ip_href '%s', exception '%s'代理出现错误，正在重试..." % (self.ip_href, e))
 
                 retry_count -= 1
                 self.proxies = {
@@ -283,7 +283,7 @@ class Parser(object):
 
         expected_flag = False
 
-        logger.info(self._md5_list)
+        logger.info('MD5 list = %s' % self._md5_list)
 
         for md5 in self._md5_list:
             if md5 == '':
@@ -293,16 +293,15 @@ class Parser(object):
             retry_count = RETRY_COUNT
             while retry_count != 0:
                 try:
-                    time.sleep(2)
+                    # time.sleep(2)
                     expected_flag = False
 
                     md5_href = MD5_URL + str(md5)
-                    content = self.client.get(md5_href, timeout=5, proxies=self.proxies, headers=headers) \
-                        .content
+                    content = self.client.get(md5_href, timeout=5, proxies=self.proxies, headers=headers).content
 
                     temp_md5_dict = json.loads(content)
                     if str(temp_md5_dict["response_code"]) == "0":
-                        logger.info("可能是陷阱， 未发现MD5 %s of%s" % (md5_href, self.ip_href))
+                        logger.warning("可能是陷阱， 未发现MD5 '%s' of '%s'" % (md5_href, self.ip_href))
                         break
                     info_md5_dict = {
                         md5: {
@@ -312,11 +311,11 @@ class Parser(object):
                     }
 
                     self.info_dict["md5"].append(info_md5_dict)
-                    logger.info("get %s of %s successfully!" % (str(md5), self.ip_href))
+                    logger.info("Got MD5 '%s' of %s successfully!" % (str(md5), self.ip_href))
                     break
                 except Exception as e:
                     expected_flag = True
-                    logger.info("代理出现错误，正在重试 %s of %s" % (md5, self.ip_href))
+                    logger.error("MD5 '%s', ip_href '%s', 代理出现错误，正在重试..." % (md5, self.ip_href))
                     logger.info(e)
                     retry_count -= 1
                     self.proxies = {

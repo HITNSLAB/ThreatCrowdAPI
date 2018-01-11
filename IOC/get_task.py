@@ -1,9 +1,11 @@
 #!/usr/bin/python
 # coding:utf-8
 from __future__ import print_function, unicode_literals
-import crawspider
+
 import requests
 from requests.adapters import HTTPAdapter
+
+import crawspider
 from config import *
 from logger_router import LoggerRouter
 
