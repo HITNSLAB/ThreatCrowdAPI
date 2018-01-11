@@ -20,6 +20,7 @@ queue_ip = Queue()  # 任务队列，每一项为待探测的ip
 mutex_href_get = threading.Lock()
 mutex_href_put = threading.Lock()
 sendbackproxy_object = SendBackProxy()  # 回收代理IP
+threading.stack_size(65536)
 
 
 def get_all(ip_string):
