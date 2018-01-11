@@ -5,7 +5,7 @@ services:
       leeyanzhe/threatcrowdapi
     deploy:
       mode: replicated
-      replicas: 180
+      replicas: 150
       restart_policy:
         condition: any
         delay: 10s
