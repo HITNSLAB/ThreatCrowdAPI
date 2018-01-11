@@ -23,7 +23,7 @@ ThreatCrowdAPI
 * 入口文件为get_task.py，当运行时，会从任务队列API中获取C段IP，传入crawspider.py中进行处理。
 
 * crawspider.py接收一个C段IP任务。\
-由于爬取需要代理，因此调用proxy.py中的get_ip_from_redis函数获取验证可用的代理IP，然后请求并解析网页A，网页A存在该C段IP中拥有IOC信息的IP列表。将这些IP抽取出来存入Queue队列，然后开启num个线程，对队列中的IP对应的API进行探测。
+  由于爬取需要代理，因此调用proxy.py中的`get_ip_from_redis`函数获取验证可用的代理IP，然后请求并解析网页A，网页A存在该C段IP中拥有IOC信息的IP列表。将这些IP抽取出来存入Queue队列，然后开启num个线程，对队列中的IP对应的API进行探测。
 
 * 探测结果存入中转的Redis数据库。可能有4种状态。
     1) 该IP拥有所需的IOC信息，正常存入
@@ -31,4 +31,4 @@ ThreatCrowdAPI
     3) 探测该IP时超过了最大重试次数，失败。返回-2，并存储相应错误信息
     4) 存入数据库时失败。返回-3，并存储相应错误信息
 
-* 在调用proxy.py中的get_ip_from_redis函数时，有可能代理池中的代理已用完。在用完时，返回-4，存储相应信息。同时每隔30秒不断重试。
+* 在调用proxy.py中的`get_ip_from_redis`函数时，有可能代理池中的代理已用完。在用完时，返回-4，存储相应信息。同时每隔30秒不断重试。
