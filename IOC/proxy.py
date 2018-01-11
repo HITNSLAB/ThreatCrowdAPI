@@ -27,7 +27,7 @@ def get_ip_from_redis():
     while True:
         ip_list = []
         for i in range(TEST_IP_LIST_COUNT):
-            ip = redis_client.lpop(REDIS_PROXY_LISTNAME)
+            ip = redis_client.rpop(REDIS_PROXY_LISTNAME)
             ip_list.append(ip)
 
         # 检查是否都为None
