@@ -2,7 +2,7 @@
 # coding:utf-8
 from __future__ import print_function, unicode_literals
 
-import requests
+# import requests
 from requests.adapters import HTTPAdapter
 
 import crawspider
@@ -10,6 +10,7 @@ from config import *
 from logger_router import LoggerRouter
 
 logger = LoggerRouter().getLogger(__name__)
+import cfscrape
 
 
 def main():
@@ -19,7 +20,8 @@ def main():
 
     logger.info("已启动。。")
 
-    request_client = requests.Session()
+    # request_client = requests.Session()
+    request_client = cfscrape.create_scraper()
     request_client.mount('http://', HTTPAdapter(max_retries=3))
 
     while True:

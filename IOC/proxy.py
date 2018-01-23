@@ -6,7 +6,8 @@ import json
 import time
 
 import redis
-import requests
+# import requests
+
 
 from config import *
 from logger_router import LoggerRouter
@@ -15,6 +16,7 @@ from store import Store
 logger = LoggerRouter().getLogger(__name__)
 
 log_object = Store()
+import cfscrape
 
 
 def get_ip_from_redis():
@@ -46,20 +48,29 @@ def get_ip_from_redis():
             return useful_ip
 
 
+import requests
+
+
 def test_useful_ip(ip_list):
     """
     检测代理IP是否可用
     """
+    req_client = cfscrape.create_scraper()
     for ip in ip_list:
         try:
             test_proxies = {
                 "http": ip,
+                "https": ip
             }
-            test_content = requests.get(TEST_URL, timeout=5, proxies=test_proxies, headers=headers).content
+            logger.info("Now test for proxies: %s" % test_proxies)
+            # test_content = req_client.get(TEST_URL, timeout=5, proxies=test_proxies, headers=headers).content
+            test_content = req_client.get(TEST_URL, timeout=5, proxies=test_proxies, headers=headers).content
+            logger.info("test_content = %s" % test_content)
+            test_dict = json.loads(test_content)
         except Exception as e:
             logger.info(e)
             continue
-        test_dict = json.loads(test_content)
+
         try:
             if test_dict["response_code"] == "1":
                 logger.info("the ip %s is useful !" % ip)

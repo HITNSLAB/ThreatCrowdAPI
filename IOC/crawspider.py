@@ -5,7 +5,7 @@ from __future__ import print_function, unicode_literals
 import json
 import threading
 from queue import Queue
-
+import cfscrape
 import requests
 from bs4 import BeautifulSoup
 
@@ -19,7 +19,7 @@ logger = LoggerRouter().getLogger(__name__)
 queue_ip = Queue()  # 任务队列，每一项为待探测的ip
 mutex_href_get = threading.Lock()
 mutex_href_put = threading.Lock()
-sendbackproxy_object = SendBackProxy()  # 回收代理IP
+# sendbackproxy_object = SendBackProxy()  # 回收代理IP
 threading.stack_size(65536)
 
 
@@ -38,8 +38,10 @@ def get_all(ip_string):
     num = THREAD_NUM
 
     class_ip = ip_string
+    proxy_ip = get_ip_from_redis()
     proxies = {
-        "http": get_ip_from_redis()
+        "http": proxy_ip,
+        "https": proxy_ip
     }
     logger.info("正在获取C段地址 %s 中存在的IP列表" % class_ip)
 
@@ -87,7 +89,7 @@ def get_ip_list_from_class(class_ip, proxies):
             =================== =========================
     """
     from requests.adapters import HTTPAdapter
-    client = requests.Session()
+    client = cfscrape.create_scraper()
     client.mount('http://', HTTPAdapter(max_retries=3))
     client.mount('https://', HTTPAdapter(max_retries=3))
 
@@ -97,20 +99,23 @@ def get_ip_list_from_class(class_ip, proxies):
     retry_count = RETRY_COUNT
     while retry_count != 0:
         try:
+            logger.info('Current proxy: %s', proxies)
             class_content = client.get("https://www.threatcrowd.org/listIPs.php?class=" + class_ip,
-                                       timeout=4, proxies=proxies).content
+                                       timeout=10, proxies=(proxies)).content
             break
         except Exception as e:
-            logger.info("代理出现错误，retrying to get %s" % class_ip)
-            logger.info(e)
+            logger.info("代理出现错误, exception '%s'，retrying to get %s" % (e, class_ip))
             retry_count -= 1
+            proxy_ip = get_ip_from_redis()
             proxies = {
-                "http": get_ip_from_redis()
+                "http": proxy_ip,
+                "https": proxy_ip
             }
             if retry_count == 0:
                 return -2
             continue
     try:
+        # logger.info("class_content = %s"%class_content)
         ip_table = BeautifulSoup(class_content, "lxml").find(attrs={"class": "table table-striped"})
         for item in ip_table:
             try:
@@ -126,11 +131,10 @@ def get_ip_list_from_class(class_ip, proxies):
                 # 可能获取到空段，舍去
                 pass
     except TypeError as e:
-        logger.info(e)
-        logger.info("极特殊情况，获取到的页面是空")
+        logger.info("极特殊情况，获取到的页面是空, exception '%s'" % e)
         return -1
 
-    sendbackproxy_object.send_back_proxy_into_redis(proxies["http"])
+    # sendbackproxy_object.send_back_proxy_into_redis(proxies["http"])
 
     if exist_ip_list is None:
         logger.info("未发现")
@@ -154,8 +158,10 @@ class LookUp(threading.Thread):
         global queue_ip, mutex_href_get, mutex_href_put
         mutex_href_get.acquire()
 
+        proxy_ip = get_ip_from_redis()
         proxies = {
-            "http": get_ip_from_redis()
+            "http": proxy_ip,
+            "https": proxy_ip
         }
 
         while queue_ip.qsize() > 0:
@@ -215,7 +221,7 @@ class Parser(object):
 
         from requests.adapters import HTTPAdapter
 
-        self.client = requests.Session()
+        self.client = cfscrape.create_scraper()
         self.client.mount('http://', HTTPAdapter(max_retries=3))
         self.client.mount('https://', HTTPAdapter(max_retries=3))
 
@@ -234,6 +240,7 @@ class Parser(object):
         retry_count = RETRY_COUNT
         while retry_count != 0:
             try:
+                logger.info('Current proxy: %s', self.proxies)
                 content = self.client.get(self.ip_href, timeout=5, proxies=self.proxies,
                                           headers=headers).content
                 logger.info("Got '%s' ip successfully!" % self.ip_href)
@@ -264,8 +271,10 @@ class Parser(object):
                 logger.error("ip_href '%s', exception '%s'代理出现错误，正在重试..." % (self.ip_href, e))
 
                 retry_count -= 1
+                proxy_ip = get_ip_from_redis()
                 self.proxies = {
-                    "http": get_ip_from_redis()
+                    "http": proxy_ip,
+                    "https": proxy_ip
                 }
 
         return -2
@@ -319,14 +328,16 @@ class Parser(object):
                     logger.error("MD5 '%s', ip_href '%s', 代理出现错误，正在重试..." % (md5, self.ip_href))
                     logger.info(e)
                     retry_count -= 1
+                    proxy_ip = get_ip_from_redis()
                     self.proxies = {
-                        "http": get_ip_from_redis()
+                        "http": proxy_ip,
+                        "https": proxy_ip
                     }
 
         if expected_flag:
             return -2
 
-        sendbackproxy_object.send_back_proxy_into_redis(self.proxies["http"])
+        # sendbackproxy_object.send_back_proxy_into_redis(self.proxies["http"])
 
         return None
 

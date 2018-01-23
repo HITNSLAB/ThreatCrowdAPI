@@ -77,11 +77,11 @@ TRANSFER_TIME = int(os.getenv('TRANSFER_TIME', 200))
 # ZHANDAYE_URL = "http://api.zdaye.com/?api=201711281044061107&checktime=2&rtype=1&ct="
 
 headers = {
-    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    # 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
     'accept-encoding': 'gzip, deflate, sdch',
-    'accept-language': 'zh-CN,zh;q=0.8',
+    # 'accept-language': 'zh-CN,zh;q=0.8',
     'cache-control': 'max-age=0',
-    'cookie': '__cfduid=d8945ed8605813e4506aafa55d5601fb31512649278',
+    # 'cookie': '__cfduid=d8945ed8605813e4506aafa55d5601fb31512649278',
     'upgrade-insecure-requests': '1',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36',
     'connection': 'close'
