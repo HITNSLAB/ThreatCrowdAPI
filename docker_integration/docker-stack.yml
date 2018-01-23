@@ -31,6 +31,8 @@ services:
       GLOBAL_PROXY: "socks5://sslocal:1080"
     depends_on:
       - sslocal
+    networks:
+      - mainnet
     command: ["python","get_task.py"]
   transfer:
     image:
@@ -48,6 +50,8 @@ services:
         failure_action: rollback
         delay: 10s
         order: stop-first
+    networks:
+      - mainnet
     environment:
       REDIS_RESULT_HOST: "172.29.152.200"
       REDIS_ERROR_TABLE: "error"
@@ -65,32 +69,7 @@ services:
     depends_on:
       - sslocal
     command: ["python","transfer.py"]
-  sslocal:
-    image:
-      leeyanzhe/sslocal
-    deploy:
-      mode: global
-      restart_policy:
-        condition: any
-        delay: 10s
-        max_attempts: 5
-        window: 60s
-      update_config:
-        parallelism: 20
-        failure_action: rollback
-        delay: 10s
-        order: stop-first
-    secrets:
-      - sskey
-    ports:
-      - "1080:1080"
-    command: ["sslocal","-c","/run/secrets/sskey"]
-secrets:
-  sskey:
-    file: ./sslocal.json
 networks:
   mainnet:
-    driver: overlay
-    attachable: true
-    name: main_overlay_net
+    external: true
 

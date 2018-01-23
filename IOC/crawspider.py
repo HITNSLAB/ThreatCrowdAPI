@@ -115,7 +115,7 @@ def get_ip_list_from_class(class_ip, proxies):
                 return -2
             continue
     try:
-        # logger.info("class_content = %s"%class_content)
+        logger.info("class_content = %s"%class_content)
         ip_table = BeautifulSoup(class_content, "lxml").find(attrs={"class": "table table-striped"})
         for item in ip_table:
             try:
