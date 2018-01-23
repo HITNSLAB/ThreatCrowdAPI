@@ -22,8 +22,8 @@ def get_ip_from_redis():
     在代理池中获取代理IP并检验是否可用
     :return: 可用的代理IP字符串，如"1.1.1.1"
     """
-    if not PROXY_ENABLED:
-        return []
+    if GLOBAL_PROXY:
+        return GLOBAL_PROXY
     redis_client = redis.Redis(host=REDIS_PROXY_HOST)
 
     while True:

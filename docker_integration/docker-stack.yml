@@ -28,10 +28,10 @@ services:
       REDIS_ERROR_TABLE: "error"
       REDIS_RESULT_TABLE: "result"
       REDIS_LACK_TABLE: "lack"
-      PROXY_ENABLED: 0
+      GLOBAL_PROXY: "socks5://sslocal:1080"
     depends_on:
       - sslocal
-    command: ["proxychains","python","get_task.py"]
+    command: ["python","get_task.py"]
   transfer:
     image:
       leeyanzhe/threatcrowdapi
@@ -61,10 +61,10 @@ services:
       MONGO_USER: "manager-rw"
       MONGO_PASSWORD: "HITdbManager-rw!"
       TRANSFER_TIME: 100
-      PROXY_ENABLED: 0
+      GLOBAL_PROXY: "socks5://sslocal:1080"
     depends_on:
       - sslocal
-    command: ["proxychains","python","transfer.py"]
+    command: ["python","transfer.py"]
   sslocal:
     image:
       leeyanzhe/sslocal

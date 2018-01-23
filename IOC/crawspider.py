@@ -98,7 +98,7 @@ def get_ip_list_from_class(class_ip, proxies):
     while retry_count != 0:
         try:
             class_content = client.get("https://www.threatcrowd.org/listIPs.php?class=" + class_ip,
-                                       timeout=4, proxies=proxies if PROXY_ENABLED else []).content
+                                       timeout=4, proxies=proxies).content
             break
         except Exception as e:
             logger.info("代理出现错误，retrying to get %s" % class_ip)
