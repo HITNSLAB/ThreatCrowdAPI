@@ -29,8 +29,6 @@ services:
       REDIS_RESULT_TABLE: "result"
       REDIS_LACK_TABLE: "lack"
       GLOBAL_PROXY: "socks5://sslocal:1080"
-    depends_on:
-      - sslocal
     networks:
       - mainnet
     command: ["python","get_task.py"]
@@ -66,8 +64,6 @@ services:
       MONGO_PASSWORD: "HITdbManager-rw!"
       TRANSFER_TIME: 100
       GLOBAL_PROXY: "socks5://sslocal:1080"
-    depends_on:
-      - sslocal
     command: ["python","transfer.py"]
 networks:
   mainnet:
