@@ -14,4 +14,5 @@ RUN apt -y update \
 
 RUN pip install -r requirements.txt
 
-ADD ./proxychains.conf /etc/proxychains.conf
+RUN cp proxychains.conf /etc/
+
