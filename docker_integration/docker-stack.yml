@@ -80,7 +80,7 @@ services:
       - sskey
     ports:
       - "1080:1080"
-    command: ["sslocal","-c","/run/secrets/sskey","-d","start"]
+    command: ["sslocal","-c","/run/secrets/sskey"]
 secrets:
   sskey:
     file: ./sslocal.json
