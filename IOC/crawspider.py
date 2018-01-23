@@ -5,14 +5,15 @@ from __future__ import print_function, unicode_literals
 import json
 import threading
 from queue import Queue
+
 import cfscrape
-import requests
 from bs4 import BeautifulSoup
+from requests.adapters import HTTPAdapter
 
 from config import *
 from logger_router import LoggerRouter
 from proxy import get_ip_from_redis
-from store import Store, SendBackProxy
+from store import Store
 
 logger = LoggerRouter().getLogger(__name__)
 
@@ -88,7 +89,7 @@ def get_ip_list_from_class(class_ip, proxies):
             -2                  超过最大重试次数，未成功获取
             =================== =========================
     """
-    from requests.adapters import HTTPAdapter
+
     client = cfscrape.create_scraper()
     client.mount('http://', HTTPAdapter(max_retries=3))
     client.mount('https://', HTTPAdapter(max_retries=3))
@@ -98,13 +99,40 @@ def get_ip_list_from_class(class_ip, proxies):
 
     retry_count = RETRY_COUNT
     while retry_count != 0:
+        query_url = "https://www.threatcrowd.org/listIPs.php?class=" + class_ip
         try:
             logger.info('Current proxy: %s', proxies)
-            class_content = client.get("https://www.threatcrowd.org/listIPs.php?class=" + class_ip,
-                                       timeout=10, proxies=(proxies)).content
+            class_content = client.get(query_url,
+                                       timeout=10, proxies=proxies).content
+            logger.info("class_content = %s" % class_content)
+            ip_table = BeautifulSoup(class_content, "lxml").find(attrs={"class": "table table-striped"})
+            for item in ip_table:
+                try:
+                    ip = item.find("td").find("a").get_text()
+                    # 检测是否是属于该段的IP
+                    if str(ip).split(".")[2] == class_ip.split(".")[2]:
+                        # class_content页面中，最后一行的IP后有换行符
+                        ip = ip.replace("\r", "")
+                        exist_ip_list.append(ip)
+                    else:
+                        logger.info("the ip %s does not belong to %s" % (ip, class_ip))
+                except Exception as e:
+                    logger.info("可能获取到空段，舍去%s" % item)
+                    pass
             break
+        except TypeError as e:
+            logger.warning("极特殊情况, 获取到的页面是空,可能目标页面需要验证码, URL = %s, 正在重试..." % query_url)
+            retry_count -= 1
+            proxy_ip = get_ip_from_redis()
+            proxies = {
+                "http": proxy_ip,
+                "https": proxy_ip
+            }
+            if retry_count == 0:
+                return -1
+            continue
         except Exception as e:
-            logger.info("代理出现错误, exception '%s'，retrying to get %s" % (e, class_ip))
+            logger.error("代理出现错误, exception '%s'，retrying to get %s" % (e, class_ip))
             retry_count -= 1
             proxy_ip = get_ip_from_redis()
             proxies = {
@@ -114,25 +142,6 @@ def get_ip_list_from_class(class_ip, proxies):
             if retry_count == 0:
                 return -2
             continue
-    try:
-        logger.info("class_content = %s"%class_content)
-        ip_table = BeautifulSoup(class_content, "lxml").find(attrs={"class": "table table-striped"})
-        for item in ip_table:
-            try:
-                ip = item.find("td").find("a").get_text()
-                # 检测是否是属于该段的IP
-                if str(ip).split(".")[2] == class_ip.split(".")[2]:
-                    # class_content页面中，最后一行的IP后有换行符
-                    ip = ip.replace("\r", "")
-                    exist_ip_list.append(ip)
-                else:
-                    logger.info("the ip %s does not belong to %s" % (ip, class_ip))
-            except Exception as e:
-                # 可能获取到空段，舍去
-                pass
-    except TypeError as e:
-        logger.info("极特殊情况，获取到的页面是空, exception '%s'" % e)
-        return -1
 
     # sendbackproxy_object.send_back_proxy_into_redis(proxies["http"])
 

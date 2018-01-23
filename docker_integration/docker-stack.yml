@@ -23,7 +23,7 @@ services:
       SPIDER_URL: "https://www.threatcrowd.org/searchApi/v2/ip/report/?ip="
       MD5_URL: "https://www.threatcrowd.org/searchApi/v2/file/report/?resource="
       THREAD_NUM: 16
-      RETRY_COUNT: 10
+      RETRY_COUNT: 50
       REDIS_RESULT_HOST: "172.29.152.200"
       REDIS_ERROR_TABLE: "error"
       REDIS_RESULT_TABLE: "result"
