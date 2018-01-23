@@ -8,8 +8,10 @@ ADD ./IOC ./IOC
 
 WORKDIR IOC
 
-RUN pip install -r requirements.txt
+RUN apt -y update \
+    && apt -y upgrade \
+    && apt -y install proxychains
 
-RUN apt -y install proxychains
+RUN pip install -r requirements.txt
 
 ADD ./proxychains.conf /etc/proxychains.conf
