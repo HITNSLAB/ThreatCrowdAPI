@@ -8,9 +8,9 @@ ADD ./IOC ./IOC
 
 WORKDIR IOC
 
-#RUN apt -y update \
-#    && apt -y upgrade \
-#    && apt -y install proxychains
+RUN apt -y update \
+    && apt -y upgrade \
+    && apt -y install nodejs
 
 RUN pip install -U pip \
     && pip install -U requests[socks] \
