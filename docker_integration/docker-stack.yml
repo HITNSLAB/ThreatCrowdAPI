@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.5'
 services:
   taskspider:
     image:
@@ -88,4 +88,9 @@ services:
 secrets:
   sskey:
     file: ./sslocal.json
+networks:
+  mainnet:
+    driver: overlay
+    attachable: true
+    name: main_overlay_net
 
