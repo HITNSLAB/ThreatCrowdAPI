@@ -29,6 +29,8 @@ services:
       REDIS_RESULT_TABLE: "result"
       REDIS_LACK_TABLE: "lack"
       PROXY_ENABLED: 0
+    depends_on:
+      - sslocal
     command: ["proxychains","python","get_task.py"]
   transfer:
     image:
@@ -60,6 +62,8 @@ services:
       MONGO_PASSWORD: "HITdbManager-rw!"
       TRANSFER_TIME: 100
       PROXY_ENABLED: 0
+    depends_on:
+      - sslocal
     command: ["proxychains","python","transfer.py"]
   sslocal:
     image:
