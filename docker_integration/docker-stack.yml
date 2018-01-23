@@ -28,7 +28,8 @@ services:
       REDIS_ERROR_TABLE: "error"
       REDIS_RESULT_TABLE: "result"
       REDIS_LACK_TABLE: "lack"
-    command: ["python","get_task.py"]
+      PROXY_ENABLED: 0
+    command: ["proxychains","python","get_task.py"]
   transfer:
     image:
       leeyanzhe/threatcrowdapi
@@ -58,5 +59,6 @@ services:
       MONGO_USER: "manager-rw"
       MONGO_PASSWORD: "HITdbManager-rw!"
       TRANSFER_TIME: 100
-    command: ["python","transfer.py"]
+      PROXY_ENABLED: 0
+    command: ["proxychains","python","transfer.py"]
 

@@ -88,3 +88,5 @@ headers = {
 }
 
 ISOTIMEFORMAT = "%Y-%m-%d %X"
+
+PROXY_ENABLED = int(os.getenv('PROXY_ENABLED', 1))
