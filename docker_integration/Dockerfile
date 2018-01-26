@@ -1,4 +1,4 @@
-FROM python
+FROM python:slim
 
 MAINTAINER WANG XIAOWEI & LI YANZHE
 
@@ -10,11 +10,8 @@ WORKDIR IOC
 
 RUN apt -y update \
     && apt -y upgrade \
-    && apt -y install nodejs
-
-RUN pip install -U pip \
+    && apt -y install nodejs \
+    && pip install -U pip \
     && pip install -U requests[socks] \
     && pip install -r requirements.txt
-
-#RUN cp proxychains.conf /etc/
 
